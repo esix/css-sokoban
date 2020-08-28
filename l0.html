@@ -14,36 +14,60 @@
       border: 1px solid #444444;
     }
     /* logic */
-    td { --active-x: 0 }
-    #x1:checked ~ table td:nth-child(1) { --active-x: 1 }
-    #x2:checked ~ table td:nth-child(2) { --active-x: 1 }
-    #x3:checked ~ table td:nth-child(3) { --active-x: 1 }
-    #x4:checked ~ table td:nth-child(4) { --active-x: 1 }
-    #x5:checked ~ table td:nth-child(5) { --active-x: 1 }
-    #x6:checked ~ table td:nth-child(6) { --active-x: 1 }
-    #x7:checked ~ table td:nth-child(7) { --active-x: 1 }
-    #x8:checked ~ table td:nth-child(8) { --active-x: 1 }
+    td { --block: 0; --wall: 0 }
+
+    #board tr:nth-child(1) td:nth-child(1),
+    #board tr:nth-child(1) td:nth-child(2),
+    #board tr:nth-child(1) td:nth-child(3),
+    #board tr:nth-child(1) td:nth-child(4),
+    #board tr:nth-child(2) td:nth-child(1),
+    #board tr:nth-child(2) td:nth-child(4),
+    #board tr:nth-child(3) td:nth-child(1),
+    #board tr:nth-child(3) td:nth-child(4),
+    #board tr:nth-child(4) td:nth-child(1),
+    #board tr:nth-child(4) td:nth-child(4),
+    #board tr:nth-child(5) td:nth-child(1),
+    #board tr:nth-child(5) td:nth-child(2),
+    #board tr:nth-child(5) td:nth-child(3),
+    #board tr:nth-child(5) td:nth-child(4)
+    { --wall: 1 }
+
+    :not(b:checked) ~ :not(a:checked) ~ #board tr:nth-child(2) td:nth-child(2)
+    { --block: 1 }
+
+    #x1:checked ~ #board tr:nth-child(1) td:nth-child(1) { --block: 1 }
+    #x2:checked ~ #board td:nth-child(2) { --active-x: 1 }
+    #x3:checked ~ #board td:nth-child(3) { --active-x: 1 }
+    #x4:checked ~ #board td:nth-child(4) { --active-x: 1 }
+    #x5:checked ~ #board td:nth-child(5) { --active-x: 1 }
+    #x6:checked ~ #board td:nth-child(6) { --active-x: 1 }
+    #x7:checked ~ #board td:nth-child(7) { --active-x: 1 }
+    #x8:checked ~ #board td:nth-child(8) { --active-x: 1 }
 
     tr { --active-y: 0 }
-    #y1:checked ~ table tr:nth-child(1) { --active-y: 1 }
-    #y2:checked ~ table tr:nth-child(2) { --active-y: 1 }
-    #y3:checked ~ table tr:nth-child(3) { --active-y: 1 }
-    #y4:checked ~ table tr:nth-child(4) { --active-y: 1 }
-    #y5:checked ~ table tr:nth-child(5) { --active-y: 1 }
-    #y6:checked ~ table tr:nth-child(6) { --active-y: 1 }
-    #y7:checked ~ table tr:nth-child(7) { --active-y: 1 }
-    #y8:checked ~ table tr:nth-child(8) { --active-y: 1 }
+    #y1:checked ~ #board tr:nth-child(1) { --active-y: 1 }
+    #y2:checked ~ #board tr:nth-child(2) { --active-y: 1 }
+    #y3:checked ~ #board tr:nth-child(3) { --active-y: 1 }
+    #y4:checked ~ #board tr:nth-child(4) { --active-y: 1 }
+    #y5:checked ~ #board tr:nth-child(5) { --active-y: 1 }
+    #y6:checked ~ #board tr:nth-child(6) { --active-y: 1 }
+    #y7:checked ~ #board tr:nth-child(7) { --active-y: 1 }
+    #y8:checked ~ #board tr:nth-child(8) { --active-y: 1 }
 
     td {position: relative; overflow: hidden;}
     tr:nth-child(2n) td:nth-child(2n+1) {background: #cccccc}
     tr:nth-child(2n+1) td:nth-child(2n) {background: #cccccc}
 
 
-    td:after {
-      content: "♔";
+    /* render */
+    .Block {}
+
+    /* WALL */
+    #board td:after {
       position: absolute;
-      left: calc((1 - var(--active-x)) * 100%);
-      top: calc((1 - var(--active-y)) * 100%);
+      background: red;
+      left: calc((1 - var(--wall)) * 100%);
+      top: calc((1 - var(--wall)) * 100%);
       width: 100%;
       height: 100%;
       font-family:Arial;
@@ -51,6 +75,26 @@
       display: flex;
       align-items: center;
       justify-content: center;
+    }
+
+    /* block */
+    #board td:before {
+      content: "P";
+      position: absolute;
+      background: red;
+      left: calc((1 - var(--block)) * 100%);
+      top: calc((1 - var(--block)) * 100%);
+      width: 100%;
+      height: 100%;
+      font-family:Arial;
+      font-size: 25px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+
+    td:after {
     }
 
     /* arrows */
@@ -116,32 +160,146 @@
 
 </head>
 <body>
-  <input type="checkbox" name="x1" id="x1"/>
-  <input type="checkbox" name="x2" id="x2"/>
-  <input type="checkbox" name="x3" id="x3"/>
-  <input type="checkbox" name="x4" id="x4"/>
+  <input type="checkbox" name="d" id="d"/>
+  <input type="checkbox" name="c" id="c"/>
+  <input type="checkbox" name="b" id="b"/>
+  <input type="checkbox" name="a" id="a"/>
   <br/>
   <br/>
 
-  <table>
-    <tbody>
-      <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-      <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-      <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-      <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-      <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-      <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-      <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-      <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-    </tbody>
-  </table>
+  <div id="board">
+    <table>
+      <tbody>
+        <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+        <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+        <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+        <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+        <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+        <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+        <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+        <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      </tbody>
+    </table>
+  </div>
 
   <div class="Arrows">
-    <label for="x1"></label>
-    <label for="x2"></label>
-    <label for="x3"></label>
-    <label for="x4"></label>
+    <label for="a"></label>
+    <label for="b"></label>
+    <label for="c"></label>
+    <label for="d"></label>
   </div>
 
 </body>
 </html>
+
+
+<!--
+0000
+  ####
+  #@ #
+  #$ #
+  #  #
+  ####
+
+0010
+  ####
+  # @#
+  #$ #
+  #  #
+  ####
+
+1010
+  ####
+  #  #
+  #$@#
+  #  #
+  ####
+
+1011
+  ####
+  #  #
+  #$ #
+  # @#
+  ####
+
+1001
+  ####
+  #  #
+  #$ #
+  #@ #
+  ####
+
+
+0100
+  ####
+  #  #
+  #@ #
+  #$ #
+  ####
+
+0110
+  ####
+  #@ #
+  #  #
+  #$ #
+  ####
+
+0111
+  ####
+  # @#
+  #  #
+  #$ #
+  ####
+
+
+0101
+  ####
+  #  #
+  # @#
+  #$ #
+  ####
+
+0001
+  ####
+  #  #
+  #  #
+  #$@#
+  ####
+
+
+1000
+  ####
+  #$ #
+  #@ #
+  #  #
+  ####
+
+1100
+  ####
+  #$ #
+  # @#
+  #  #
+  ####
+
+1101
+  ####
+  #$@#
+  #  #
+  #  #
+  ####
+
+1110
+  ####
+  #$ #
+  #  #
+  # @#
+  ####
+
+1010
+  ####
+  #$ #
+  #  #
+  #@ #
+  ####
+
+-->
