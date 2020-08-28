@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+
+  <style>
+    table {
+      border-collapse: collapse;
+      display: inline-block
+    }
+    td {
+      width: 20px;
+      height: 20px;
+      border: 1px solid #444444;
+    }
+    /* logic */
+    td { --active-x: 0 }
+    #x1:checked ~ table td:nth-child(1) { --active-x: 1 }
+    #x2:checked ~ table td:nth-child(2) { --active-x: 1 }
+    #x3:checked ~ table td:nth-child(3) { --active-x: 1 }
+    #x4:checked ~ table td:nth-child(4) { --active-x: 1 }
+    #x5:checked ~ table td:nth-child(5) { --active-x: 1 }
+    #x6:checked ~ table td:nth-child(6) { --active-x: 1 }
+    #x7:checked ~ table td:nth-child(7) { --active-x: 1 }
+    #x8:checked ~ table td:nth-child(8) { --active-x: 1 }
+
+    tr { --active-y: 0 }
+    #y1:checked ~ table tr:nth-child(1) { --active-y: 1 }
+    #y2:checked ~ table tr:nth-child(2) { --active-y: 1 }
+    #y3:checked ~ table tr:nth-child(3) { --active-y: 1 }
+    #y4:checked ~ table tr:nth-child(4) { --active-y: 1 }
+    #y5:checked ~ table tr:nth-child(5) { --active-y: 1 }
+    #y6:checked ~ table tr:nth-child(6) { --active-y: 1 }
+    #y7:checked ~ table tr:nth-child(7) { --active-y: 1 }
+    #y8:checked ~ table tr:nth-child(8) { --active-y: 1 }
+
+    td {position: relative; overflow: hidden;}
+    tr:nth-child(2n) td:nth-child(2n+1) {background: #cccccc}
+    tr:nth-child(2n+1) td:nth-child(2n) {background: #cccccc}
+
+
+    td:after {
+      content: "♔";
+      position: absolute;
+      left: calc((1 - var(--active-x)) * 100%);
+      top: calc((1 - var(--active-y)) * 100%);
+      width: 100%;
+      height: 100%;
+      font-family:Arial;
+      font-size: 25px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* arrows */
+    table {float: left;}
+    .Arrows { border: 1px solid #444444; width: 180px; height: 180px;  float: left; margin-left: 50px; position: relative; }
+    .Arrows label {}
+    .Arrows label:after {
+      width: 50px;
+      height: 50px;
+      box-shadow: 0px 10px 14px -7px #3e7327;
+      background: linear-gradient(to bottom, #77b55a 5%, #72b352 100%);
+      background-color: #77b55a;
+      border-radius: 4px;
+      border: 1px solid #4b8f29;
+      cursor: pointer;
+      color: #ffffff;
+      font-family: Arial;
+      font-size: 13px;
+      font-weight: bold;
+      text-decoration: none;
+      text-shadow: 0px 1px 0px #5b8a3c;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #x2:checked ~ .Arrows label[for="x1"]:after,
+    #x3:checked ~ .Arrows label[for="x2"]:after,
+    #x4:checked ~ .Arrows label[for="x3"]:after,
+    #x5:checked ~ .Arrows label[for="x4"]:after,
+    #x6:checked ~ .Arrows label[for="x5"]:after,
+    #x7:checked ~ .Arrows label[for="x6"]:after,
+    #x8:checked ~ .Arrows label[for="x7"]:after
+    { position: absolute; content: "←"; left: 10px; top: 65px; }
+
+    #x1:checked ~ .Arrows label[for="x2"]:after,
+    #x2:checked ~ .Arrows label[for="x3"]:after,
+    #x3:checked ~ .Arrows label[for="x4"]:after,
+    #x4:checked ~ .Arrows label[for="x5"]:after,
+    #x5:checked ~ .Arrows label[for="x6"]:after,
+    #x6:checked ~ .Arrows label[for="x7"]:after,
+    #x7:checked ~ .Arrows label[for="x8"]:after
+    { display: flex; position: absolute; content: "→"; left: 120px; top: 65px; }
+
+    #y2:checked ~ .Arrows label[for="y1"]:after,
+    #y3:checked ~ .Arrows label[for="y2"]:after,
+    #y4:checked ~ .Arrows label[for="y3"]:after,
+    #y5:checked ~ .Arrows label[for="y4"]:after,
+    #y6:checked ~ .Arrows label[for="y5"]:after,
+    #y7:checked ~ .Arrows label[for="y6"]:after,
+    #y8:checked ~ .Arrows label[for="y7"]:after
+    { display: flex; position: absolute; content: "↑"; top: 10px; left: 65px; }
+
+    #y1:checked ~ .Arrows label[for="y2"]:after,
+    #y2:checked ~ .Arrows label[for="y3"]:after,
+    #y3:checked ~ .Arrows label[for="y4"]:after,
+    #y4:checked ~ .Arrows label[for="y5"]:after,
+    #y5:checked ~ .Arrows label[for="y6"]:after,
+    #y6:checked ~ .Arrows label[for="y7"]:after,
+    #y7:checked ~ .Arrows label[for="y8"]:after
+    { display: flex; position: absolute; content: "↓"; top: 120px; left: 65px; }
+  </style>
+
+</head>
+<body>
+  <input type="checkbox" name="x1" id="x1"/>
+  <input type="checkbox" name="x2" id="x2"/>
+  <input type="checkbox" name="x3" id="x3"/>
+  <input type="checkbox" name="x4" id="x4"/>
+  <br/>
+  <br/>
+
+  <table>
+    <tbody>
+      <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    </tbody>
+  </table>
+
+  <div class="Arrows">
+    <label for="x1"></label>
+    <label for="x2"></label>
+    <label for="x3"></label>
+    <label for="x4"></label>
+  </div>
+
+</body>
+</html>
