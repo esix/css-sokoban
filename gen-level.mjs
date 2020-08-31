@@ -104,21 +104,30 @@ function countFitness(states, mapping) {
 }
 
 
+function crossover(x, y) {
+  const n = x.length;
+  let mapping = new Array(n);
+  for (let i = 0; i < n; i++) {
+    let [a, b] = Math.random() < 0.5 ? [x, y] : [y, x];
+
+    for (let k = i; k !== -1 && mapping[k] === undefined; k = b.indexOf(a[k])) {
+      mapping[k] = a[k];
+    }
+
+  }
+  return mapping;
+}
+
+
 function swapRandom(mapping) {
   const n = mapping.length - 1;
   let i = 1 + Math.floor(Math.random() * n), j = 1 + Math.floor(Math.random() * n);
   [mapping[i], mapping[j]] = [mapping[j], mapping[i]];
 }
 
-function crossover(a, b) {
-  const n = a.length;
-  let mapping = new Array(n);
-  for (let i = 0; i < n; i++) {
-    let k = Math.random() < 0.5;
-    let v = k ? a[i] : b[i];
-    if (mapping.includes(v)) k = !k;
-    mapping[i] = k ? a[i] : b[i];
-  }
+
+function mutate(mapping) {
+  mapping = mapping.slice(0);
   // mutate
   if (Math.random() < 0.2) swapRandom(mapping);
   if (Math.random() < 0.2) swapRandom(mapping);
@@ -171,7 +180,7 @@ function genLevel(level) {
     for (let a = 0; a < 10; a++) {
       for (let b = 0; b < 10; b++) {
         if (a !== b) {
-          population.push(crossover(population[a], population[b]));
+          population.push(mutate(crossover(population[a], population[b])));
         }
       }
     }
@@ -180,7 +189,6 @@ function genLevel(level) {
   }
 
   console.log(population[0]);
-
 }
 
 

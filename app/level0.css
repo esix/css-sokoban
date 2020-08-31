@@ -1,0 +1,101 @@
+/* walls */
+#board tr:nth-child(1) td:nth-child(1),
+#board tr:nth-child(1) td:nth-child(2),
+#board tr:nth-child(1) td:nth-child(3),
+#board tr:nth-child(1) td:nth-child(4),
+#board tr:nth-child(2) td:nth-child(1),
+#board tr:nth-child(2) td:nth-child(4),
+#board tr:nth-child(3) td:nth-child(1),
+#board tr:nth-child(3) td:nth-child(4),
+#board tr:nth-child(4) td:nth-child(1),
+#board tr:nth-child(4) td:nth-child(4),
+#board tr:nth-child(5) td:nth-child(1),
+#board tr:nth-child(5) td:nth-child(2),
+#board tr:nth-child(5) td:nth-child(3),
+#board tr:nth-child(5) td:nth-child(4)
+{ --wall: 1 }
+
+
+/* blocks */
+/*  0 */ #d:not(:checked) ~ #c:not(:checked)  ~ #b:not(:checked)  ~ #a:not(:checked)  ~ #board  tr:nth-child(3) td:nth-child(2) { --block: 1; }
+/*  1 */ #d:not(:checked) ~ #c:not(:checked)  ~ #b:checked        ~ #a:not(:checked)  ~ #board  tr:nth-child(4) td:nth-child(2) { --block: 1; }
+/*  2 */ #d:not(:checked) ~ #c:not(:checked)  ~ #b:not(:checked)  ~ #a:checked        ~ #board  tr:nth-child(3) td:nth-child(2) { --block: 1; }
+/*  3 */ #d:not(:checked) ~ #c:checked        ~ #b:checked        ~ #a:not(:checked)  ~ #board  tr:nth-child(4) td:nth-child(2) { --block: 1; }
+/*  4 */ #d:not(:checked) ~ #c:not(:checked)  ~ #b:checked        ~ #a:checked        ~ #board  tr:nth-child(4) td:nth-child(2) { --block: 1; }
+/*  5 */ #d:not(:checked) ~ #c:checked        ~ #b:not(:checked)  ~ #a:checked        ~ #board  tr:nth-child(3) td:nth-child(2) { --block: 1; }
+/*  6 */ #d:not(:checked) ~ #c:checked        ~ #b:checked        ~ #a:checked        ~ #board  tr:nth-child(4) td:nth-child(2) { --block: 1; }
+/*  7 */ #d:checked       ~ #c:not(:checked)  ~ #b:checked        ~ #a:checked        ~ #board  tr:nth-child(4) td:nth-child(2) { --block: 1; }
+/*  8 */ #d:checked       ~ #c:checked        ~ #b:not(:checked)  ~ #a:checked        ~ #board  tr:nth-child(3) td:nth-child(2) { --block: 1; }
+/*  9 */ #d:checked       ~ #c:not(:checked)  ~ #b:not(:checked)  ~ #a:checked        ~ #board  tr:nth-child(3) td:nth-child(2) { --block: 1; }
+/* 10 */ #d:checked       ~ #c:not(:checked)  ~ #b:not(:checked)  ~ #a:not(:checked)  ~ #board  tr:nth-child(2) td:nth-child(2) { --block: 1; }
+/* 11 */ #d:checked       ~ #c:not(:checked)  ~ #b:checked        ~ #a:not(:checked)  ~ #board  tr:nth-child(2) td:nth-child(2) { --block: 1; }
+/* 12 */ #d:checked       ~ #c:checked        ~ #b:not(:checked)  ~ #a:not(:checked)  ~ #board  tr:nth-child(2) td:nth-child(2) { --block: 1; }
+/* 13 */ #d:checked       ~ #c:checked        ~ #b:checked        ~ #a:not(:checked)  ~ #board  tr:nth-child(2) td:nth-child(2) { --block: 1; }
+/* 14 */ #d:not(:checked) ~ #c:checked        ~ #b:not(:checked)  ~ #a:not(:checked)  ~ #board  tr:nth-child(2) td:nth-child(2) { --block: 1; }
+
+
+/* player */
+/*  0 */ #d:not(:checked) ~ #c:not(:checked)  ~ #b:not(:checked)  ~ #a:not(:checked)  ~ #board { --player-x: 2; --player-y: 2; }
+/*  1 */ #d:not(:checked) ~ #c:not(:checked)  ~ #b:checked        ~ #a:not(:checked)  ~ #board { --player-x: 2; --player-y: 3; }
+/*  2 */ #d:not(:checked) ~ #c:not(:checked)  ~ #b:not(:checked)  ~ #a:checked        ~ #board { --player-x: 3; --player-y: 2; }
+/*  3 */ #d:not(:checked) ~ #c:checked        ~ #b:checked        ~ #a:not(:checked)  ~ #board { --player-x: 2; --player-y: 2; }
+/*  4 */ #d:not(:checked) ~ #c:not(:checked)  ~ #b:checked        ~ #a:checked        ~ #board { --player-x: 3; --player-y: 3; }
+/*  5 */ #d:not(:checked) ~ #c:checked        ~ #b:not(:checked)  ~ #a:checked        ~ #board { --player-x: 3; --player-y: 3; }
+/*  6 */ #d:not(:checked) ~ #c:checked        ~ #b:checked        ~ #a:checked        ~ #board { --player-x: 3; --player-y: 2; }
+/*  7 */ #d:checked       ~ #c:not(:checked)  ~ #b:checked        ~ #a:checked        ~ #board { --player-x: 3; --player-y: 4; }
+/*  8 */ #d:checked       ~ #c:checked        ~ #b:not(:checked)  ~ #a:checked        ~ #board { --player-x: 3; --player-y: 4; }
+/*  9 */ #d:checked       ~ #c:not(:checked)  ~ #b:not(:checked)  ~ #a:checked        ~ #board { --player-x: 2; --player-y: 4; }
+/* 10 */ #d:checked       ~ #c:not(:checked)  ~ #b:not(:checked)  ~ #a:not(:checked)  ~ #board { --player-x: 2; --player-y: 3; }
+/* 11 */ #d:checked       ~ #c:not(:checked)  ~ #b:checked        ~ #a:not(:checked)  ~ #board { --player-x: 2; --player-y: 4; }
+/* 12 */ #d:checked       ~ #c:checked        ~ #b:not(:checked)  ~ #a:not(:checked)  ~ #board { --player-x: 3; --player-y: 3; }
+/* 13 */ #d:checked       ~ #c:checked        ~ #b:checked        ~ #a:not(:checked)  ~ #board { --player-x: 3; --player-y: 4; }
+/* 14 */ #d:not(:checked) ~ #c:checked        ~ #b:not(:checked)  ~ #a:not(:checked)  ~ #board { --player-x: 3; --player-y: 2; }
+
+
+/* arrows */
+/*  1 */ #d:not(:checked) ~ #c:not(:checked)  ~ #b:checked        ~ #a:not(:checked)  ~ .Arrows label[for="c"],
+/*  4 */ #d:not(:checked) ~ #c:not(:checked)  ~ #b:checked        ~ #a:checked        ~ .Arrows label[for="c"],
+/*  5 */ #d:not(:checked) ~ #c:checked        ~ #b:not(:checked)  ~ #a:checked        ~ .Arrows label[for="c"],
+/*  7 */ #d:checked       ~ #c:not(:checked)  ~ #b:checked        ~ #a:checked        ~ .Arrows label[for="d"],
+/*  8 */ #d:checked       ~ #c:checked        ~ #b:not(:checked)  ~ #a:checked        ~ .Arrows label[for="d"],
+/*  9 */ #d:checked       ~ #c:not(:checked)  ~ #b:not(:checked)  ~ #a:checked        ~ .Arrows label[for="a"],
+/* 11 */ #d:checked       ~ #c:not(:checked)  ~ #b:checked        ~ #a:not(:checked)  ~ .Arrows label[for="b"],
+/* 12 */ #d:checked       ~ #c:checked        ~ #b:not(:checked)  ~ #a:not(:checked)  ~ .Arrows label[for="d"],
+/* 13 */ #d:checked       ~ #c:checked        ~ #b:checked        ~ #a:not(:checked)  ~ .Arrows label[for="b"]
+{
+  --arrow-top: 1;
+}
+
+/*  0 */ #d:not(:checked) ~ #c:not(:checked)  ~ #b:not(:checked)  ~ #a:not(:checked)  ~ .Arrows label[for="a"],
+/*  1 */ #d:not(:checked) ~ #c:not(:checked)  ~ #b:checked        ~ #a:not(:checked)  ~ .Arrows label[for="a"],
+/*  3 */ #d:not(:checked) ~ #c:checked        ~ #b:checked        ~ #a:not(:checked)  ~ .Arrows label[for="a"],
+/*  9 */ #d:checked       ~ #c:not(:checked)  ~ #b:not(:checked)  ~ #a:checked        ~ .Arrows label[for="c"],
+/* 10 */ #d:checked       ~ #c:not(:checked)  ~ #b:not(:checked)  ~ #a:not(:checked)  ~ .Arrows label[for="c"],
+/* 11 */ #d:checked       ~ #c:not(:checked)  ~ #b:checked        ~ #a:not(:checked)  ~ .Arrows label[for="c"]
+{
+  --arrow-right: 1;
+}
+
+
+/*  0 */ #d:not(:checked) ~ #c:not(:checked)  ~ #b:not(:checked)  ~ #a:not(:checked)  ~ .Arrows label[for="b"],
+/*  2 */ #d:not(:checked) ~ #c:not(:checked)  ~ #b:not(:checked)  ~ #a:checked        ~ .Arrows label[for="c"],
+/*  3 */ #d:not(:checked) ~ #c:checked        ~ #b:checked        ~ #a:not(:checked)  ~ .Arrows label[for="c"],
+/*  4 */ #d:not(:checked) ~ #c:not(:checked)  ~ #b:checked        ~ #a:checked        ~ .Arrows label[for="d"],
+/*  5 */ #d:not(:checked) ~ #c:checked        ~ #b:not(:checked)  ~ #a:checked        ~ .Arrows label[for="d"],
+/*  6 */ #d:not(:checked) ~ #c:checked        ~ #b:checked        ~ #a:checked        ~ .Arrows label[for="c"],
+/* 10 */ #d:checked       ~ #c:not(:checked)  ~ #b:not(:checked)  ~ #a:not(:checked)  ~ .Arrows label[for="b"],
+/* 12 */ #d:checked       ~ #c:checked        ~ #b:not(:checked)  ~ #a:not(:checked)  ~ .Arrows label[for="b"],
+/* 14 */ #d:not(:checked) ~ #c:checked        ~ #b:not(:checked)  ~ #a:not(:checked)  ~ .Arrows label[for="d"]
+{
+  --arrow-bottom: 1;
+}
+
+/*  2 */ #d:not(:checked) ~ #c:not(:checked)  ~ #b:not(:checked)  ~ #a:checked        ~ .Arrows label[for="a"],
+/*  4 */ #d:not(:checked) ~ #c:not(:checked)  ~ #b:checked        ~ #a:checked        ~ .Arrows label[for="a"],
+/*  6 */ #d:not(:checked) ~ #c:checked        ~ #b:checked        ~ #a:checked        ~ .Arrows label[for="a"],
+/*  8 */ #d:checked       ~ #c:checked        ~ #b:not(:checked)  ~ #a:checked        ~ .Arrows label[for="c"],
+/* 12 */ #d:checked       ~ #c:checked        ~ #b:not(:checked)  ~ #a:not(:checked)  ~ .Arrows label[for="c"],
+/* 13 */ #d:checked       ~ #c:checked        ~ #b:checked        ~ #a:not(:checked)  ~ .Arrows label[for="c"]
+{
+  --arrow-left: 1;
+}
