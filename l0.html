@@ -2,156 +2,18 @@
 <html>
 <head>
   <meta charset="utf-8"/>
+  <link rel="stylesheet" href="common.css">
   <link rel="stylesheet" href="app/level0.css">
-
-  <style>
-    table {
-      border-collapse: collapse;
-      display: inline-block
-    }
-    td {
-      width: 20px;
-      height: 20px;
-      border: 1px solid #444444;
-    }
-    /* logic */
-    td { --block: 0; --wall: 0 }
-
-
-
-
-
-
-    /* render */
-    td {position: relative; overflow: hidden;}
-    tr:nth-child(2n) td:nth-child(2n+1) {background: #cccccc}
-    tr:nth-child(2n+1) td:nth-child(2n) {background: #cccccc}
-
-    /* WALL */
-    #board td:after {
-      content: "W";
-      position: absolute;
-      background: red;
-      left: calc((1 - var(--wall)) * 100%);
-      top: calc((1 - var(--wall)) * 100%);
-      width: 100%;
-      height: 100%;
-      font-family:Arial;
-      font-size: 25px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    /* block */
-    #board td:before {
-      content: "B";
-      position: absolute;
-      background: red;
-      left: calc((1 - var(--block)) * 100%);
-      top: calc((1 - var(--block)) * 100%);
-      width: 100%;
-      height: 100%;
-      font-family:Arial;
-      font-size: 25px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-
-    #board {
-      position: relative;
-      width: 185px;
-      height: 185px;
-      float: left;
-    }
-
-    #board {
-      --player-x: 0;
-      --player-y: 0;
-    }
-
-    #player {
-      position: absolute;
-      width: 22px;
-      height: 22px;
-      left: calc((var(--player-x) - 1) * 23px + 1px);
-      top: calc((var(--player-y) - 1) * 23px + 1px);
-      background: yellow;
-    }
-
-
-    /* arrows */
-    .Arrows { border: 1px solid #444444; width: 180px; height: 180px;  float: left; margin-left: 50px; position: relative; }
-    .Arrows label {
-      /* ONLY ONE of 4 variables may be set to 1 */
-      --arrow-top: 0;
-      --arrow-right: 0;
-      --arrow-bottom: 0;
-      --arrow-left: 0;
-
-      position: absolute;
-      left: calc(var(--arrow-top) * 65px + var(--arrow-right) * 120px + var(--arrow-bottom) * 65px + var(--arrow-left) * 10px);
-      top: calc(var(--arrow-top) * 10px + var(--arrow-right) * 65px + var(--arrow-bottom) * 120px + var(--arrow-left) * 65px);
-      transform: translate(calc(-1000px * (1 - var(--arrow-top) - var(--arrow-right) - var(--arrow-bottom) - var(--arrow-left))));
-
-      width: 50px;
-      height: 50px;
-      box-shadow: 0px 10px 14px -7px #3e7327;
-      background-color: #77b55a;
-      border-radius: 4px;
-      border: 1px solid #4b8f29;
-      cursor: pointer;
-      color: #ffffff;
-      font-family: Arial;
-      font-size: 13px;
-      font-weight: bold;
-      text-decoration: none;
-      text-shadow: 0px 1px 0px #5b8a3c;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .Arrows label:after {
-      content: "";
-      position: absolute;
-      width: 40px;
-      height: 40px;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%) rotate(calc(-90deg * var(--arrow-top) + 0deg * var(--arrow-right) + 90deg * var(--arrow-bottom) + 180deg * var(--arrow-left)));
-      background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/PjxzdmcgYmFzZVByb2ZpbGU9InRpbnkiIGhlaWdodD0iMjRweCIgaWQ9IkxheWVyXzEiIHZlcnNpb249IjEuMiIgdmlld0JveD0iMCAwIDI0IDI0IiB3aWR0aD0iMjRweCIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayI+PHBhdGggZD0iTTEwLjU4Niw2LjU4NmMtMC43ODEsMC43NzktMC43ODEsMi4wNDcsMCwyLjgyOEwxMi4xNzIsMTFINC45MjhjLTEuMTA0LDAtMiwwLjg5NS0yLDJjMCwxLjEwNCwwLjg5NiwyLDIsMmg3LjI0NCAgbC0xLjU4NiwxLjU4NmMtMC43ODEsMC43NzktMC43ODEsMi4wNDcsMCwyLjgyOEMxMC45NzcsMTkuODA1LDExLjQ4OCwyMCwxMiwyMHMxLjAyMy0wLjE5NSwxLjQxNC0wLjU4NkwxOS44MjgsMTNsLTYuNDE0LTYuNDE0ICBDMTIuNjMzLDUuODA1LDExLjM2Nyw1LjgwNSwxMC41ODYsNi41ODZ6Ii8+PC9zdmc+');
-      background-size: cover;
-    }
-
-
-
-    #y2:checked ~ .Arrows label[for="y1"]:after,
-    #y3:checked ~ .Arrows label[for="y2"]:after,
-    #y4:checked ~ .Arrows label[for="y3"]:after,
-    #y5:checked ~ .Arrows label[for="y4"]:after,
-    #y6:checked ~ .Arrows label[for="y5"]:after,
-    #y7:checked ~ .Arrows label[for="y6"]:after,
-    #y8:checked ~ .Arrows label[for="y7"]:after
-    { display: flex; position: absolute; content: "↑"; top: 10px; left: 65px; }
-
-    #y1:checked ~ .Arrows label[for="y2"]:after,
-    #y2:checked ~ .Arrows label[for="y3"]:after,
-    #y3:checked ~ .Arrows label[for="y4"]:after,
-    #y4:checked ~ .Arrows label[for="y5"]:after,
-    #y5:checked ~ .Arrows label[for="y6"]:after,
-    #y6:checked ~ .Arrows label[for="y7"]:after,
-    #y7:checked ~ .Arrows label[for="y8"]:after
-    { display: flex; position: absolute; content: "↓"; top: 120px; left: 65px; }
-  </style>
-
 </head>
 <body>
-  <input type="checkbox" name="d" id="d"/>
-  <input type="checkbox" name="c" id="c"/>
-  <input type="checkbox" name="b" id="b"/>
-  <input type="checkbox" name="a" id="a"/>
+  <input type="checkbox" name="x7" id="x7"/>
+  <input type="checkbox" name="x6" id="x6"/>
+  <input type="checkbox" name="x5" id="x5"/>
+  <input type="checkbox" name="x4" id="x4"/>
+  <input type="checkbox" name="x3" id="x3"/>
+  <input type="checkbox" name="x2" id="x2"/>
+  <input type="checkbox" name="x1" id="x1"/>
+  <input type="checkbox" name="x0" id="x0"/>
   <br/>
   <br/>
 
@@ -172,10 +34,14 @@
   </div>
 
   <div class="Arrows">
-    <label for="a"></label>
-    <label for="b"></label>
-    <label for="c"></label>
-    <label for="d"></label>
+    <label for="x7"></label>
+    <label for="x6"></label>
+    <label for="x5"></label>
+    <label for="x4"></label>
+    <label for="x3"></label>
+    <label for="x2"></label>
+    <label for="x1"></label>
+    <label for="x0"></label>
   </div>
 
 </body>
