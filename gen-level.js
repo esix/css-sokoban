@@ -90,19 +90,21 @@ function moveRight(level) { return move(level, 0, 1); }
 
 /**
  * GameState type - level and up, down, left and right moves to other GameState
- * @typedef {{level: string, left: GameState|null, up: GameState|null, right: GameState|null, down: GameState|null, isWin: boolean}} GameState
+ * @typedef {{level: string, depth: number, left: GameState|null, up: GameState|null, right: GameState|null, down: GameState|null, isWin: boolean}} GameState
  */
 
 /**
  *
  * @param {string} level
+ * @param {number} depth
  * @param {{y: number, x: number}[]} targets
  * @return {GameState}
  */
-function makeGameState(level, targets) {
+function makeGameState(level, depth, targets) {
   const lines = level.split('\n');
   return {
     level,
+    depth,
     up: null,
     down: null,
     left: null,
@@ -126,7 +128,7 @@ function genGraph(level) {
    * Start game state
    * @type {GameState}
    */
-  const s0 = makeGameState(level, targets);
+  const s0 = makeGameState(level, 0, targets);
 
   let h = {[s0.level]: s0};
 
@@ -148,10 +150,10 @@ function genGraph(level) {
 
     const level = s.level, levelU = moveUp(level), levelD = moveDown(level), levelL = moveLeft(level), levelR = moveRight(level);
 
-    if (levelU) if (h[levelU]) s.up    = h[levelU]; else queue.push(s.up    = h[levelU] = makeGameState(levelU, targets));
-    if (levelD) if (h[levelD]) s.down  = h[levelD]; else queue.push(s.down  = h[levelD] = makeGameState(levelD, targets));
-    if (levelL) if (h[levelL]) s.left  = h[levelL]; else queue.push(s.left  = h[levelL] = makeGameState(levelL, targets));
-    if (levelR) if (h[levelR]) s.right = h[levelR]; else queue.push(s.right = h[levelR] = makeGameState(levelR, targets));
+    if (levelU) if (h[levelU]) s.up    = h[levelU]; else queue.push(s.up    = h[levelU] = makeGameState(levelU, s.depth + 1, targets));
+    if (levelD) if (h[levelD]) s.down  = h[levelD]; else queue.push(s.down  = h[levelD] = makeGameState(levelD, s.depth + 1, targets));
+    if (levelL) if (h[levelL]) s.left  = h[levelL]; else queue.push(s.left  = h[levelL] = makeGameState(levelL, s.depth + 1, targets));
+    if (levelR) if (h[levelR]) s.right = h[levelR]; else queue.push(s.right = h[levelR] = makeGameState(levelR, s.depth + 1, targets));
   }
 
   return states;
@@ -193,17 +195,20 @@ function binaryDiff(a, b) {
  *
  * @param {GameState[]} states
  * @param {string} chromosome
+ * @param {number} maxDepth
  * @return {number}
  */
-function countFitness(states, chromosome) {
+function countFitness(states, chromosome, maxDepth = Infinity) {
   const genes = chromosome.split(',');
   let result = 0;
   for (let i = 0; i < states.length; i++) {
-    let up = states.indexOf(states[i].up), down = states.indexOf(states[i].down), left = states.indexOf(states[i].left), right = states.indexOf(states[i].right);
-    if (up !== -1) result += binaryDiff(genes[up], genes[i]) !== 1;
-    if (down !== -1) result += binaryDiff(genes[down], genes[i]) !== 1;
-    if (left !== -1) result += binaryDiff(genes[left], genes[i]) !== 1;
-    if (right !== -1) result += binaryDiff(genes[right], genes[i]) !== 1;
+    const state = states[i];
+    if (state.depth > maxDepth) continue;
+    const up = states.indexOf(state.up), down = states.indexOf(state.down), left = states.indexOf(state.left), right = states.indexOf(state.right)
+    if (up !== -1 && state.up.depth <= maxDepth) result += (binaryDiff(+genes[up], +genes[i]) !== 1);
+    if (down !== -1 && state.down.depth <= maxDepth) result += (binaryDiff(+genes[down], +genes[i]) !== 1);
+    if (left !== -1 && state.left.depth <= maxDepth) result += (binaryDiff(+genes[left], +genes[i]) !== 1);
+    if (right !== -1 && state.right.depth <= maxDepth) result += (binaryDiff(+genes[right], +genes[i]) !== 1);
   }
   return result;
 }
@@ -213,11 +218,12 @@ function countFitness(states, chromosome) {
  * @param {GameState[]} states
  * @param {string[]} population
  * @param {number} n
+ * @param {number?} maxDepth
  * @return {string[]}
  */
-function selectTop(states, population, n) {
+function selectTop(states, population, n, maxDepth = Infinity) {
   let idxs = population.map((_, i) => i);
-  const scores = population.map(chromosome => countFitness(states, chromosome));
+  const scores = population.map(chromosome => countFitness(states, chromosome, maxDepth));
   idxs.sort((i1, i2) => scores[i1] - scores[i2]);
   idxs = idxs.slice(0, n);
   return idxs.map(i => population[i]);
@@ -248,25 +254,70 @@ function swapRandom(genes) {
   [genes[i], genes[j]] = [genes[j], genes[i]];
 }
 
+/**
+ *
+ * @param {number} start
+ * @param {number?} end
+ * @returns {number}
+ */
+function rand(start, end) {
+  if (!end) {
+    [start, end] = [0, start];
+  }
+  const r = Math.floor((end - start) * Math.random());
+  return start + r;
+}
+
+/**
+ *
+ * @param {number} v
+ * @returns {number} number with one inverted bit
+ */
+function invertRandomBit(v) {
+  const mask = 1 << rand(0, 16);
+  v ^= mask;
+  return v;
+}
+
 
 function mutate(chromosome) {
   let genes = chromosome.split(',');
 
   if (Math.random() < 0.2) swapRandom(genes);
-  if (Math.random() < 0.2) swapRandom(genes);
-  if (Math.random() < 0.2) swapRandom(genes);
+  // if (Math.random() < 0.2) swapRandom(genes);
+  // if (Math.random() < 0.2) swapRandom(genes);
 
-  // TODO: add extra bit left
+  // invert random bit
   if (Math.random() < 0.1) {
     const n = genes.length - 1;
     const i = 1 + Math.floor(Math.random() * n);
-    let v = +genes[i], mask = 1;
-    while (mask <= v) mask <<= 1;
-    v = String(v | mask);
+    let v = String(invertRandomBit(+genes[i]));
     if (!genes.includes(v)) {
       genes[i] = v;
     }
   }
+
+  // // Add extra bit left
+  // if (Math.random() < 0.1) {
+  //   const n = genes.length - 1;
+  //   const i = 1 + Math.floor(Math.random() * n);
+  //   let v = +genes[i], mask = 1;
+  //   while (mask > 0 && mask <= v) mask <<= 1;
+  //   v = String(v | mask);
+  //   if (v > 0 && !genes.includes(v)) {
+  //     genes[i] = v;
+  //   }
+  // }
+
+  // if (Math.random() < 0.1) {
+  //   const n = genes.length - 1;
+  //   const i = 1 + Math.floor(Math.random() * n);
+  //   let v = +genes[i];
+  //   v = String(v >> 1);
+  //   if (!genes.includes(v)) {
+  //     genes[i] = v;
+  //   }
+  // }
 
   return genes.join(',');
 }
@@ -275,20 +326,21 @@ function mutate(chromosome) {
  *
  * @param {GameState[]} states
  * @param {string[]} population
+ * @param {number?} maxDepth
  * @return {string[]}
  */
-function populationStep(states, population) {
-  let chromosomesSet = new Set(population);
+function populationStep(states, population, maxDepth = Infinity) {
+  let chromosomesSet = new Set();
 
-  for (let i = 0; i < population.length - 1; i++) {
-    for (let j = i + 1; j < population.length; j++) {
+  for (let i = 0; i < population.length; i++) {
+    for (let j = 0; j < population.length; j++) {
       chromosomesSet.add(mutate(crossover(population[i], population[j])))
     }
   }
 
   population = Array.from(chromosomesSet);
 
-  population = selectTop(states, population, 20);
+  population = selectTop(states, population, 10, maxDepth);
   return population;
 }
 
@@ -310,7 +362,6 @@ function sortIslands(states, islands) {
 }
 
 
-
 /**
  *
  * @param {string} level
@@ -321,47 +372,37 @@ function genLevel(level) {
   logGameStates(states);
   console.log(`Generated ${states.length} states`);
 
+
+  const maxDepth = Math.max.apply(Math, states.map(state => state.depth));
+
   const chromosome0 = states.map((_, i) => i).join(',');
-  const chromosome1 = states.map((_, i) => states.length - i - 1).join(',');
+  const chromosome1 = states.map((_, i) => 2 * i).join(',');
+  let population = [chromosome0, chromosome1];
 
-  let score = 0, n = 0;
+  for (let depth = 0; depth <= maxDepth; depth++) {
+    console.log('depth=', depth);
+    let score = 0, n = 0;
+    do {
+      population = populationStep(states, population, depth);
+      score = countFitness(states, population[0], depth);
 
-  let islands = [];
-  for (let i = 0; i < 10; i++) islands[i] = [chromosome0, chromosome1];
-
-  do {
-    if (++n % 100 === 0) {
-      console.log('iteration', n);
-
-      for (let i = 0; i < islands.length; i++) {
-        const iScore = countFitness(states, islands[i][0]);
-        console.log('    ', islands[i][0], ' => ', iScore);
+      if (++n % 100 === 0) {
+        console.log('iteration', n, 'score=', score, 'chromosome=', population[0].split(',').map((gene, i) => states[i].depth <= depth ? gene : '_' ).join(','));
       }
 
-      let leaders = islands.map(population => population[0]);
-      islands = [];
-      for (let a = 0; a < leaders.length - 1; a++) {
-        for (let b = a + 1; b < leaders.length; b++) {
-          islands.push([leaders[a], leaders[b]]);
-        }
+      if (n > 1000) {
+        console.log('REPLAY depth = ', depth, 'score=', score, 'chromosome=', population[0].split(',').map((gene, i) => states[i].depth <= depth ? gene : '_' ).join(','));
+        depth -= 2;
+        break;
       }
+    } while (score > 0);
 
+    if (score === 0) {
+      console.log('SUCCESS depth = ', depth, 'score=', score, 'chromosome=', population[0].split(',').map((gene, i) => states[i].depth <= depth ? gene : '_' ).join(','));
     }
+  }
 
-    score = Infinity;
-
-    for (let i = 0; i < islands.length; i++) {
-      islands[i] = populationStep(states, islands[i]);
-      score = Math.min(countFitness(states, islands[i][0]));
-    }
-
-    islands = sortIslands(states, islands);
-    if (islands.length > 10) islands.pop();
-
-  } while (score > 0);
-
-
-  console.log(islands[0][0]);
+  console.log(population[0]);
 }
 
 

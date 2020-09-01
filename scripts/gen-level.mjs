@@ -1,9 +1,9 @@
-import { genLevel } from '../gen-level.mjs';
+import { genLevel } from '../gen-level.js';
 
 // console.log(genLevel(`
 // ####
 // #@ #
-// #$ #
+// #$  #
 // #. #
 // ####
 // `));
