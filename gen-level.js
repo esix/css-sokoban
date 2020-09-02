@@ -362,6 +362,12 @@ function sortIslands(states, islands) {
 }
 
 
+function checkHasOne1(mask) {
+  while (mask > 0 && (mask & 1) === 0) mask >>= 1;
+  return mask === 1;
+}
+
+
 /**
  *
  * @param {string} level
@@ -372,37 +378,105 @@ function genLevel(level) {
   logGameStates(states);
   console.log(`Generated ${states.length} states`);
 
-
-  const maxDepth = Math.max.apply(Math, states.map(state => state.depth));
-
-  const chromosome0 = states.map((_, i) => i).join(',');
-  const chromosome1 = states.map((_, i) => 2 * i).join(',');
-  let population = [chromosome0, chromosome1];
-
-  for (let depth = 0; depth <= maxDepth; depth++) {
-    console.log('depth=', depth);
-    let score = 0, n = 0;
-    do {
-      population = populationStep(states, population, depth);
-      score = countFitness(states, population[0], depth);
-
-      if (++n % 100 === 0) {
-        console.log('iteration', n, 'score=', score, 'chromosome=', population[0].split(',').map((gene, i) => states[i].depth <= depth ? gene : '_' ).join(','));
+  let connectedIdxs = [[]];
+  for (let i = 1; i < states.length; i++) {
+    connectedIdxs[i] = [];
+    for (let j = 0; j < i; j++) {
+      if (states[j].up === states[i] || states[j].down === states[i] || states[j].left === states[i] || states[j].right === states[i] ||
+          states[i].up === states[j] || states[i].down === states[j] || states[i].left === states[j] || states[i].right === states[j]) {
+        connectedIdxs[i].push(j);
       }
-
-      if (n > 1000) {
-        console.log('REPLAY depth = ', depth, 'score=', score, 'chromosome=', population[0].split(',').map((gene, i) => states[i].depth <= depth ? gene : '_' ).join(','));
-        depth -= 2;
-        break;
-      }
-    } while (score > 0);
-
-    if (score === 0) {
-      console.log('SUCCESS depth = ', depth, 'score=', score, 'chromosome=', population[0].split(',').map((gene, i) => states[i].depth <= depth ? gene : '_' ).join(','));
     }
   }
 
-  console.log(population[0]);
+  let results = states.map((state , i) => i ? -1 : 0);
+
+  let i = 1;
+
+  let n = 0;
+  // const MAX = 0x10000;
+  const MAX = 0x00020;
+
+  while (i < states.length) {
+    if ((n++) % 10000000 === 0) {
+      console.log('STEP', n, ': ', i, ':', results.slice(0, i).join(','));
+    }
+
+    let connected = connectedIdxs[i].map(j => results[j]);
+
+    let mask;
+    if (results[i] === -1) {
+      mask = 1;
+    } else {
+      mask = results[i] ^ connected[0];
+      mask <<= 1;                                             // will change next bit
+      if (!checkHasOne1(mask)) {
+        debugger;
+        console.log('INVALID MASK', 'i=', i, 'results[i]=', results[i], 'connected[0]=', connected[0]);
+        throw new Error('invalid mask');
+      }
+      if (mask === MAX) {                                   // overflow: step back
+        // const lastConnectedIndex = connectedIdxs[i][connectedIdxs[i].length - 1];
+        // if (lastConnectedIndex === 0) {
+        //   debugger;
+        // }
+        // while (i > lastConnectedIndex) {
+        results[i] = -1;
+        i--;
+        //}
+        continue;
+      }
+    }
+
+    results[i] = connected[0] ^ mask;
+
+    if (results.indexOf(results[i]) !== i) {                                                  // duplicate: maybe search next
+      continue;
+    }
+
+    if (connected[1] !== undefined && !checkHasOne1(connected[1] ^ results[i]) ||
+        connected[2] !== undefined && !checkHasOne1(connected[2] ^ results[i]) ||
+        connected[3] !== undefined && !checkHasOne1(connected[3] ^ results[i])) {
+      continue;
+    }
+
+    // value passed tests and is ok
+    i++;
+  }
+
+  console.log(results.join(','));
+
+  //
+  // const maxDepth = Math.max.apply(Math, states.map(state => state.depth));
+  //
+  // const chromosome0 = states.map((_, i) => i).join(',');
+  // const chromosome1 = states.map((_, i) => 2 * i).join(',');
+  // let population = [chromosome0, chromosome1];
+  //
+  // for (let depth = 0; depth <= maxDepth; depth++) {
+  //   console.log('depth=', depth);
+  //   let score = 0, n = 0;
+  //   do {
+  //     population = populationStep(states, population, depth);
+  //     score = countFitness(states, population[0], depth);
+  //
+  //     if (++n % 100 === 0) {
+  //       console.log('iteration', n, 'score=', score, 'chromosome=', population[0].split(',').map((gene, i) => states[i].depth <= depth ? gene : '_' ).join(','));
+  //     }
+  //
+  //     if (n > 1000) {
+  //       console.log('REPLAY depth = ', depth, 'score=', score, 'chromosome=', population[0].split(',').map((gene, i) => states[i].depth <= depth ? gene : '_' ).join(','));
+  //       depth -= 2;
+  //       break;
+  //     }
+  //   } while (score > 0);
+  //
+  //   if (score === 0) {
+  //     console.log('SUCCESS depth = ', depth, 'score=', score, 'chromosome=', population[0].split(',').map((gene, i) => states[i].depth <= depth ? gene : '_' ).join(','));
+  //   }
+  // }
+  //
+  // console.log(population[0]);
 }
 
 
