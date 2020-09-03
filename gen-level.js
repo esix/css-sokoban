@@ -90,7 +90,7 @@ function moveRight(level) { return move(level, 0, 1); }
 
 /**
  * GameState type - level and up, down, left and right moves to other GameState
- * @typedef {{level: string, depth: number, left: GameState|null, up: GameState|null, right: GameState|null, down: GameState|null, isWin: boolean}} GameState
+ * @typedef {{id: number, level: string, depth: number, left: GameState|null, up: GameState|null, right: GameState|null, down: GameState|null, isWin: boolean}} GameState
  */
 
 /**
@@ -103,6 +103,7 @@ function moveRight(level) { return move(level, 0, 1); }
 function makeGameState(level, depth, targets) {
   const lines = level.split('\n');
   return {
+    id: -1,
     level,
     depth,
     up: null,
@@ -156,6 +157,8 @@ function genGraph(level) {
     if (levelR) if (h[levelR]) s.right = h[levelR]; else queue.push(s.right = h[levelR] = makeGameState(levelR, s.depth + 1, targets));
   }
 
+  states.forEach((s, i) => s.id = i);
+
   return states;
 }
 
@@ -167,6 +170,11 @@ function logGameStates(states) {
   const LEVEL_WIDTH = Math.max.apply(Math, states[0].level.split('\n').map(line => line.length));
   console.log(''.padEnd(LEVEL_WIDTH + 8, ' ') + 'UP'.padEnd(LEVEL_WIDTH + 4, ' ') + 'DOWN'.padEnd(LEVEL_WIDTH + 4, ' ') + 'LEFT'.padEnd(LEVEL_WIDTH + 4, ' ') + 'RIGHT'.padEnd(LEVEL_WIDTH + 4, ' '));
   for (let state of states) {
+    console.log((state.id + ' (' + state.depth + ')').padEnd(LEVEL_WIDTH + 4, ' ') + '|   ' +
+        (state.up   ? state.up.id    + ' (' + state.up.depth + ')' : '').padEnd(LEVEL_WIDTH + 4, ' ') +
+        (state.down ? state.down.id  + ' (' + state.down.depth + ')' : '').padEnd(LEVEL_WIDTH + 4, ' ') +
+        (state.left ? state.left.id  + ' (' + state.left.depth + ')' : '').padEnd(LEVEL_WIDTH + 4, ' ') +
+        (state.right? state.right.id + ' (' + state.right.depth + ')' : '').padEnd(LEVEL_WIDTH + 4, ' '));
     for (let i = 0; true; i++){
       if (!state.level.split('\n')[i]) break;
       console.log(state.level.split('\n')[i].padEnd(LEVEL_WIDTH + 4, ' ') + '|   ' +
@@ -394,8 +402,8 @@ function genLevel(level) {
   let i = 1;
 
   let n = 0;
-  // const MAX = 0x10000;
-  const MAX = 0x00020;
+  const MAX = 0x10000;
+  //const MAX = 0x00020;
 
   while (i < states.length) {
     if ((n++) % 10000000 === 0) {
