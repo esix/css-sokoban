@@ -237,10 +237,12 @@ function genLevel(level) {
   let result = [0n];           // for the first one (depth=0) we set it
 
   // result = [0n, 1n, 2n, 4n, 9n, 18n, 36n, 68n, 132n]
-  // depth = 0, [0n]
-  // depth = 1, [1n, 2n, 4n]
-  // depth = 2, [9n, 18n, 36n, 68n, 132n]
-  // depth = 3, sum = 69, rr = [265n, 530n, 146n, 1060n, 2084n, 4132n, 8260n, 16516n, 134n]
+  // depth = 0, [0n]                                                                0
+  // depth = 1, [1n, 2n, 4n]                                                        1 10 100
+  // depth = 2, [3n, 10n, 5n, 6n, 12n]                                              11 1010 101 110 1100
+  // depth = 3, [19n, 11n, 14n, 7n, 21n, 37n, 22n, 13n, 28n]                        10011 1011 1110 111 10101 100101 10110 1101 11100
+  // depth = 4, [27n, 43n, 15n, 46n, 30n, 71n, 29n, 53n, 39n, 23n, 54n, 45n]        11011 101011 1111 101110 11110 1000111 11101 110101 100111 10111 110110 101101
+
 
 
   const isSortedArraysHaveSameElement = (as, bs) => {
@@ -298,7 +300,7 @@ function genLevel(level) {
       fixedValue[i] = r;
     });
 
-    const d = (n1, n2) => count1s(n1 ^ n2);
+    const dist = (n1, n2) => count1s(n1 ^ n2);
 
 
     function getNNumbersThatGivesSumEqualsK(n, k, fn) {
@@ -322,9 +324,11 @@ function genLevel(level) {
       let maskSet = [];
       let mask = 1n;
       for (let j = 0; j < 100; j++) {
-        while (parentValue[i] & mask) mask <<= 1n;
-        maskSet.push(mask);
-        mask <<= 1n;
+        if (!fixedValue[i]) {
+          while (parentValue[i] & mask) mask <<= 1n;
+          maskSet.push(mask);
+          mask <<= 1n;
+        }
       }
       return maskSet;
     });
@@ -332,16 +336,16 @@ function genLevel(level) {
 
     let r = [];
 
-
     for (let sum = 0; sum < 100; sum++) {
       console.log('sum=', sum);
       let success = getNNumbersThatGivesSumEqualsK(maskSets.length, sum, (maskIndexes) => {
         let masks = maskIndexes.map((maskIndex, i) => maskSets[i][maskIndex]);
-        r = masks.map((mask, i) => parentValue[i] ^ mask);
+        r = masks.map((mask, i) => fixedValue[i] || (parentValue[i] ^ mask));
         // check r...
-        for (let i = 0; i < r.length; i++) {
-          for (let j = 0; j < r.length; j++) {
-            if (d(r[i], r[j]) > w[i][j]) return false;
+        for (let i = 0; i < r.length - 1; i++) {
+          for (let j = i + 1; j < r.length; j++) {
+            let d = dist(r[i], r[j]);
+            if (d === 0 || dist(r[i], r[j]) > w[i][j]) return false;
           }
         }
         return true;
@@ -349,6 +353,7 @@ function genLevel(level) {
       if (success) break;
     }
 
+    console.log('depth=', depth, 'res = ', r, r.map(v => v.toString(2)));
     debugger;
 
 
