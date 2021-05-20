@@ -235,14 +235,22 @@ function genLevel(level) {
 
 
   let result = [0n];           // for the first one (depth=0) we set it
+  let START_DEPTH = 1;
 
-  // result = [0n, 1n, 2n, 4n, 9n, 18n, 36n, 68n, 132n]
-  // depth = 0, [0n]                                                                0
-  // depth = 1, [1n, 2n, 4n]                                                        1 10 100
-  // depth = 2, [3n, 10n, 5n, 6n, 12n]                                              11 1010 101 110 1100
-  // depth = 3, [19n, 11n, 14n, 7n, 21n, 37n, 22n, 13n, 28n]                        10011 1011 1110 111 10101 100101 10110 1101 11100
-  // depth = 4, [27n, 43n, 15n, 46n, 30n, 71n, 29n, 53n, 39n, 23n, 54n, 45n]        11011 101011 1111 101110 11110 1000111 11101 110101 100111 10111 110110 101101
 
+  // precalculated:
+  let semiresults = [
+    // depth
+    /*  0 */ [0n],                                                                // 0
+    /*  1 */ [1n, 2n, 4n],                                                        // 1 10 100
+    /*  2 */ [3n, 10n, 5n, 6n, 12n],                                              // 11 1010 101 110 1100
+    /*  3 */ [19n, 11n, 14n, 7n, 21n, 37n, 22n, 13n, 28n],                        // 10011 1011 1110 111 10101 100101 10110 1101 11100
+    /*  4 */ [27n, 43n, 15n, 46n, 30n, 71n, 29n, 53n, 39n, 23n, 54n, 45n],        // 11011 101011 1111 101110 11110 1000111 11101 110101 100111 10111 110110 101101
+    /*  5 */
+  ]
+
+  result = [].concat.apply([], semiresults);
+  START_DEPTH = semiresults.length;
 
 
   const isSortedArraysHaveSameElement = (as, bs) => {
@@ -272,7 +280,7 @@ function genLevel(level) {
 
 
   debugger;
-  for (let depth = 1; ; depth++) {
+  for (let depth = START_DEPTH; ; depth++) {
     let ss = states.filter(state => state.depth === depth);                                         // states of selected depth
     if (ss.length === 0) break;
 
