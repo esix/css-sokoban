@@ -198,6 +198,9 @@ function count1s(v) {
   return result;
 }
 
+const dist = (n1, n2) => count1s(n1 ^ n2);
+
+
 
 /**
  *
@@ -242,10 +245,10 @@ function genLevel(level) {
   let semiresults = [
     // depth
     /*  0 */ [0n],                                                                // 0
-    /*  1 */ [1n, 2n, 4n],                                                        // 1 10 100
-    /*  2 */ [3n, 10n, 5n, 6n, 12n],                                              // 11 1010 101 110 1100
-    /*  3 */ [19n, 11n, 14n, 7n, 21n, 37n, 22n, 13n, 28n],                        // 10011 1011 1110 111 10101 100101 10110 1101 11100
-    /*  4 */ [27n, 43n, 15n, 46n, 30n, 71n, 29n, 53n, 39n, 23n, 54n, 45n],        // 11011 101011 1111 101110 11110 1000111 11101 110101 100111 10111 110110 101101
+    /*  1 */ [1n, 2n, 4n],                                                        // 001 010 100
+    /*  2 */ [3n, 10n, 5n, 6n, 12n],                                              // 0011 1010 0101 0110 1100
+    /*  3 */ [19n, 11n, 14n, 7n, 21n, 37n, 22n, 13n, 28n],                        // 010011 001011 001110 000111 010101 100101 010110 001101 011100
+    /*  4 */ [27n, 43n, 15n, 46n, 30n, 71n, 29n, 53n, 39n, 23n, 54n, 45n],        // 0011011 0101011 0001111 0101110 0011110 1000111 0011101 0110101 0100111 0010111 0110110 0101101
     /*  5 */
   ]
 
@@ -281,6 +284,7 @@ function genLevel(level) {
 
   debugger;
   for (let depth = START_DEPTH; ; depth++) {
+    console.log('Depth=', depth);
     let ss = states.filter(state => state.depth === depth);                                         // states of selected depth
     if (ss.length === 0) break;
 
@@ -297,7 +301,6 @@ function genLevel(level) {
       let sParentIds = connectedIdxs[s.id].filter(nid => states[nid].depth < depth);
       if (sParentIds.length === 0) { debugger; throw new Error('NO PARENT FOR STATE')}
       if (sParentIds.length === 1) { parentValue[i] = result[sParentIds[0]]; return true; }
-      debugger;
       // find the result for the state as OR function of its parents
       let r = 0n;
       sParentIds.forEach(pid => {
@@ -308,56 +311,65 @@ function genLevel(level) {
       fixedValue[i] = r;
     });
 
-    const dist = (n1, n2) => count1s(n1 ^ n2);
+    debugger;
 
+    // inverts nth zero bit to 1
+    let invertsCache = {};
+    const invert0To1 = (value, n) => {
+      if ((value in invertsCache) && invertsCache[value][n]) return invertsCache[value][n];
+      if (!(value in invertsCache)) invertsCache[value] = [];
 
-    function getNNumbersThatGivesSumEqualsK(n, k, fn) {
-      let r = [];
-      let rec = (i, k) => {
-        if (i === n - 1) {
-          r[i] = k;
-          return fn(r);
-        }
-        for (r[i] = 0; r[i] <= k; r[i] ++) {
-          if (rec(i + 1, k - r[i])) {
-            return true;
-          }
-        }
+      let mask = 1n;
+      while (value & mask) mask <<= 1n;
+
+      for (let j = 0; j < n; j++) {
+        mask <<= 1n;
+        while (value & mask) mask <<= 1n;
       }
-      return rec(0, k);
+      invertsCache[value][n] = value | mask;
+      return invertsCache[value][n];
     }
 
-    debugger;
-    let maskSets = ss.map((s, i) => {
-      let maskSet = [];
-      let mask = 1n;
-      for (let j = 0; j < 100; j++) {
-        if (!fixedValue[i]) {
-          while (parentValue[i] & mask) mask <<= 1n;
-          maskSet.push(mask);
-          mask <<= 1n;
-        }
+
+    let r = new Array(ss.length).fill(0n);
+
+    const checkCompatibility = i => {
+      for (let j = 0; j < i; j++) {
+        let d = dist(r[i], r[j]);
+        if (d === 0 || dist(r[i], r[j]) > w[i][j]) return false;
       }
-      return maskSet;
-    });
-
-
-    let r = [];
+      return true;
+    };
 
     for (let sum = 0; sum < 100; sum++) {
-      console.log('sum=', sum);
-      let success = getNNumbersThatGivesSumEqualsK(maskSets.length, sum, (maskIndexes) => {
-        let masks = maskIndexes.map((maskIndex, i) => maskSets[i][maskIndex]);
-        r = masks.map((mask, i) => fixedValue[i] || (parentValue[i] ^ mask));
-        // check r...
-        for (let i = 0; i < r.length - 1; i++) {
-          for (let j = i + 1; j < r.length; j++) {
-            let d = dist(r[i], r[j]);
-            if (d === 0 || dist(r[i], r[j]) > w[i][j]) return false;
+      console.log('depth=', depth, 'sum=', sum, 'r = ', r);
+
+      let rec = (i, semisum) => {
+        if (i === r.length) return true;                // if we are here - we found a solution
+
+        if (fixedValue[i]) {
+          r[i] = fixedValue[i];
+          if (checkCompatibility(i)) {
+            return rec(i + 1, semisum);
+          } else {
+            return false;
           }
         }
-        return true;
-      });
+
+        for (let j = 0; j <= semisum; j++) {
+          r[i] = invert0To1(parentValue[i], j);
+          if (checkCompatibility(i)) {
+            if (rec(i + 1, semisum - j)) {
+              return true;
+            }
+          }
+        }
+        return false;
+      };
+
+
+      let success = rec(0, sum);
+
       if (success) break;
     }
 
